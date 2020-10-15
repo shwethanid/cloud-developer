@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Router, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
+//import urlExists from 'url-exists-deep';
 
 (async () => {
 
@@ -13,6 +14,12 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
+  // Root Endpoint
+  // Displays a simple message to the user
+  app.get( "/", async ( req, res ) => {
+    res.send("try GET /filteredimage?image_url={{}}")
+  } );
+  
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
@@ -31,12 +38,35 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
   //! END @TODO1
   
-  // Root Endpoint
-  // Displays a simple message to the user
-  app.get( "/", async ( req, res ) => {
-    res.send("try GET /filteredimage?image_url={{}}")
+  // endpoint to filter an image from a public url.
+  // GET /filteredimage?image_url={{URL}}
+  app.get( "/filteredimage/", ( req: Request, res: Response ) => {
+    let { image_url } = req.query;
+    console.log(image_url);
+
+    if ( !image_url ) {
+      return res.status(400)
+                .send(`image_url is required`);
+    }
+
+    // const urlExist = require("url-exist");
+    // const exists = urlExist(image_url);
+    // console.log(exists);
+    // exists.then((isExists: Boolean) => {
+    //   if (!isExists) {
+    //     return res.status(422).send(`image url does not exists`);
+    //   }
+    // })
+
+    const img_file = filterImageFromURL(image_url);
+    img_file.then((image) => {
+      console.log('File:', image);
+      res.status(200)
+               .sendFile(image, () => deleteLocalFiles([image]));
+      //return value;
+    });
+
   } );
-  
 
   // Start the Server
   app.listen( port, () => {
