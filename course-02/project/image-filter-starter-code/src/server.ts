@@ -49,14 +49,6 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
                 .send(`image_url is required`);
     }
 
-    // const urlExist = require("url-exist");
-    // const exists = urlExist(image_url);
-    // console.log(exists);
-    // exists.then((isExists: Boolean) => {
-    //   if (!isExists) {
-    //     return res.status(422).send(`image url does not exists`);
-    //   }
-    // })
 
     const img_file = filterImageFromURL(image_url);
     img_file.then((image) => {
